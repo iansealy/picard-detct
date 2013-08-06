@@ -40,6 +40,7 @@ class ReadEnds implements MarkDuplicates.PhysicalLocation {
     int read2Sequence     = -1;
     int read2Coordinate   = -1;
     long read2IndexInFile = -1;
+    int tag;
 
     // Information used to detect optical dupes
     short readGroup = -1;
