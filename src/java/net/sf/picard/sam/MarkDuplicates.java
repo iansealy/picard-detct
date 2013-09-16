@@ -104,6 +104,9 @@ public class MarkDuplicates extends AbstractDuplicateFindingAlgorithm {
     @Option(doc="If true do not write duplicates to the output file instead of writing them with appropriate flags set.")
     public boolean REMOVE_DUPLICATES = false;
 
+    @Option(doc="If true consider tag (part after # in read name) when deciding if reads are duplicates.")
+    public boolean CONSIDER_TAGS = false;
+
     @Option(shortName=StandardOptionDefinitions.ASSUME_SORTED_SHORT_NAME,
 		    doc="If true, assume that the input file is coordinate sorted even if the header says otherwise.")
     public boolean ASSUME_SORTED = false;
@@ -446,6 +449,10 @@ public class MarkDuplicates extends AbstractDuplicateFindingAlgorithm {
                                                                         pairedEnds.orientation == ReadEnds.R);
                         }
 
+                        if (CONSIDER_TAGS) {
+                            pairedEnds.tag = fragmentEnd.tag;
+                        }
+
                         pairedEnds.score += getScore(rec);
                         this.pairSort.add(pairedEnds);
                     }
@@ -475,6 +482,21 @@ public class MarkDuplicates extends AbstractDuplicateFindingAlgorithm {
         ends.orientation = rec.getReadNegativeStrandFlag() ? ReadEnds.R : ReadEnds.F;
         ends.read1IndexInFile = index;
         ends.score = getScore(rec);
+        if (CONSIDER_TAGS) {
+            // Tag is read name suffix of the form #AGCTAGCTAG
+            final String[] readNameParts = rec.getReadName().split("#");
+            if (readNameParts != null && readNameParts.length > 1 && readNameParts[readNameParts.length - 1].matches("^[NAGCTX]+$")) {
+                // Convert to long to save memory
+                String tag = readNameParts[readNameParts.length - 1];
+                tag = tag.replace("N", "0");
+                tag = tag.replace("A", "1");
+                tag = tag.replace("G", "2");
+                tag = tag.replace("C", "3");
+                tag = tag.replace("T", "4");
+                tag = tag.replace("X", "5");
+                ends.tag = Long.parseLong(tag, 6); // Base 6
+            }
+        }
 
         // Doing this lets the ends object know that it's part of a pair
         if (rec.getReadPairedFlag() && !rec.getMateUnmappedFlag()) {
@@ -633,6 +655,10 @@ public class MarkDuplicates extends AbstractDuplicateFindingAlgorithm {
                           lhs.read1Sequence   == rhs.read1Sequence &&
                           lhs.read1Coordinate == rhs.read1Coordinate &&
                           lhs.orientation     == rhs.orientation;
+
+        if (retval && CONSIDER_TAGS) {
+            retval = lhs.tag == rhs.tag;
+        }
 
         if (retval && compareRead2) {
             retval = lhs.read2Sequence   == rhs.read2Sequence &&
