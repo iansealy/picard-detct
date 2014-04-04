@@ -753,6 +753,7 @@ public class MarkDuplicates extends AbstractDuplicateFindingAlgorithm {
             if (retval == 0) retval = lhs.orientation - rhs.orientation;
             if (retval == 0) retval = lhs.read2Sequence   - rhs.read2Sequence;
             if (retval == 0) retval = lhs.read2Coordinate - rhs.read2Coordinate;
+            if (retval == 0) retval = (int) (lhs.tag - rhs.tag);
             if (retval == 0) retval = (int) (lhs.read1IndexInFile - rhs.read1IndexInFile);
             if (retval == 0) retval = (int) (lhs.read2IndexInFile - rhs.read2IndexInFile);
 
