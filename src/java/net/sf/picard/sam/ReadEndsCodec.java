@@ -56,6 +56,7 @@ class ReadEndsCodec implements SortingCollection.Codec<ReadEnds> {
             this.out.writeInt(read.read1Sequence);
             this.out.writeInt(read.read1Coordinate);
             this.out.writeLong(read.read1IndexInFile);
+            this.out.writeLong(read.tag);
             this.out.writeInt(read.read2Sequence);
 
             if (read.orientation > ReadEnds.R) {
@@ -85,6 +86,7 @@ class ReadEndsCodec implements SortingCollection.Codec<ReadEnds> {
             read.read1Sequence    = this.in.readInt();
             read.read1Coordinate  = this.in.readInt();
             read.read1IndexInFile = this.in.readLong();
+            read.tag              = this.in.readLong();
             read.read2Sequence    = this.in.readInt();
 
             if (read.orientation > ReadEnds.R) {
