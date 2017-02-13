@@ -299,9 +299,15 @@ public class SamToFastq extends CommandLineProgram {
         if (read.getAttribute("BC") != null &&
             read.getAttribute("QT") != null &&
             read.getAttribute("br") != null &&
-            read.getAttribute("qr") != null) {
+            (read.getAttribute("qr") != null || read.getAttribute("bq") != null)) {
             readString = (String)read.getAttribute("br") + (String)read.getAttribute("BC") + readString;
-            baseQualities = (String)read.getAttribute("qr") + (String)read.getAttribute("QT") + baseQualities;
+            baseQualities = (String)read.getAttribute("QT") + baseQualities;
+            if (read.getAttribute("qr") != null) {
+                baseQualities = (String)read.getAttribute("qr") + baseQualities;
+            }
+            else if (read.getAttribute("bq") != null) {
+                baseQualities = (String)read.getAttribute("bq") + baseQualities;
+            }
         }
 
         writer.write(new FastqRecord(seqHeader, readString, "", baseQualities));
